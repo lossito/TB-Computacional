@@ -1,4 +1,5 @@
 #pragma once
+#include "dwmapi.h"
 
 namespace GrafoConexo {
 
@@ -48,12 +49,27 @@ namespace GrafoConexo {
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			this->components = gcnew System::ComponentModel::Container();
-			this->Size = System::Drawing::Size(300,300);
-			this->Text = L"MyForm1";
-			this->Padding = System::Windows::Forms::Padding(0);
+			this->SuspendLayout();
+			// 
+			// MyForm1
+			// 
+			this->AutoScaleDimensions = System::Drawing::SizeF(7, 17);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(43)), static_cast<System::Int32>(static_cast<System::Byte>(45)),
+				static_cast<System::Int32>(static_cast<System::Byte>(49)));
+			this->ClientSize = System::Drawing::Size(766, 1023);
+			this->Font = (gcnew System::Drawing::Font(L"Segoe UI", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->Name = L"MyForm1";
+			this->Text = L"GrafoConexo";
+			this->Load += gcnew System::EventHandler(this, &MyForm1::MyForm1_Load);
+			this->ResumeLayout(false);
+
 		}
 #pragma endregion
+	private: System::Void MyForm1_Load(System::Object^ sender, System::EventArgs^ e) {
+
+	}
 	};
 }
