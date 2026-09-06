@@ -57,10 +57,10 @@ namespace GrafoConexo {
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(43)), static_cast<System::Int32>(static_cast<System::Byte>(45)),
 				static_cast<System::Int32>(static_cast<System::Byte>(49)));
-			this->ClientSize = System::Drawing::Size(766, 1023);
+			this->ClientSize = System::Drawing::Size(674, 775);
 			this->Font = (gcnew System::Drawing::Font(L"Segoe UI", 9.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(0)));
-			this->Margin = System::Windows::Forms::Padding(4, 4, 4, 4);
+			this->Margin = System::Windows::Forms::Padding(4);
 			this->Name = L"MyForm1";
 			this->Text = L"GrafoConexo";
 			this->Load += gcnew System::EventHandler(this, &MyForm1::MyForm1_Load);
@@ -69,7 +69,10 @@ namespace GrafoConexo {
 		}
 #pragma endregion
 	private: System::Void MyForm1_Load(System::Object^ sender, System::EventArgs^ e) {
-
+		IntPtr handle = this->Handle;
+		HWND hwnd = (HWND)handle.ToPointer();
+		bool option = (bool)&handle;
+		DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &option, sizeof(handle));
 	}
 	};
 }
