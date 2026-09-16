@@ -1,5 +1,6 @@
 #pragma once
 #include "dwmapi.h"
+#include "Grafo.h"
 
 namespace GrafoConexo {
 
@@ -19,9 +20,7 @@ namespace GrafoConexo {
 		MyForm1(void)
 		{
 			InitializeComponent();
-			//
-			//TODO: Add the constructor code here
-			//
+			grafo = new Grafo<int>;
 		}
 
 	protected:
@@ -34,6 +33,7 @@ namespace GrafoConexo {
 			{
 				delete components;
 			}
+			delete grafo;
 		}
 	private: System::Windows::Forms::NumericUpDown^ numericUpDown1;
 	private: System::Windows::Forms::Button^ button1;
@@ -46,6 +46,8 @@ namespace GrafoConexo {
 		/// Required designer variable.
 		/// </summary>
 		System::ComponentModel::Container^ components;
+		int cantidadVertices;
+		Grafo<int>* grafo;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -134,12 +136,15 @@ namespace GrafoConexo {
 	private: System::Void MyForm1_Load(System::Object^ sender, System::EventArgs^ e) {
 		IntPtr handle = this->Handle;
 		HWND hwnd = (HWND)handle.ToPointer();
-		bool option = (bool)&handle;
-		DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &option, sizeof(handle));
+		BOOL option = TRUE;
+		DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &option, sizeof(option));
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
 	}
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
+		this->cantidadVertices = (int)numericUpDown1->Value;
+		grafo->reiniciarMatriz();
+		for (int i = 1; i <= cantidadVertices; i++) grafo->agregarVertice(i);
 	}
 	private: System::Void radioButton1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 	}
