@@ -1,107 +1,54 @@
 #pragma once
-#include <vector>
-#include <functional>
-#include <queue>
+#include <algorithm>
 #include <unordered_map>
+#include <vector>
 
-// no dirigido
 template <typename T>
 class Grafo {
 private:
-    std::vector<T> vertices;
-    std::unordered_map<T, std::vector<T>> matrizAdyacencia; //mas facil para mi
-
-  //  int buscarVertice(T v) {
-
-  //      for(auto& par : matrizAdyacencia) {
-  //          if (par.first == v) {
-  //              return 1;
-  //          }
-		//}
-  //      return 0;
-
-  //      /*for (int i = 0; i < matrizAdyacencia.size(); i++) {
-  //          if (vertices[i] == v) {
-  //              return i;
-  //          }
-  //      }
-		//return T();*/
-  //  }
+    std::unordered_map<T, std::vector<T>> listaAdyacencia;
 
 public:
-    void agregarVertice(T v) {
-        if (!existeVertice(v)) { //ojito aca
+    bool existeVertice(T vertice) {
+        return listaAdyacencia.find(vertice) != listaAdyacencia.end();
+    }
 
-			matrizAdyacencia[v];
-
-            //vertices.push_back(v);  //agregar validacion?
-            //for (auto& fila : matrizAdyacencia) { fila.push_back(0); }
-            //matrizAdyacencia.push_back(std::vector<int>(vertices.size(), 0));
+    void agregarVertice(T vertice) {
+        if (!existeVertice(vertice)) {
+            listaAdyacencia[vertice];
         }
     }
 
-    void reiniciarMatriz() {
-        vertices.clear();
-        matrizAdyacencia.clear();
+    bool existeArista(T origen, T destino) {
+        auto posicion = listaAdyacencia.find(origen);
+
+        if (posicion == listaAdyacencia.end()) { return false; }
+
+        std::vector<T>& vecinos = posicion->second;
+
+        return std::find(vecinos.begin(), vecinos.end(), destino) != vecinos.end();
     }
 
     void agregarArista(T origen, T destino) {
         agregarVertice(origen);
         agregarVertice(destino);
 
-		matrizAdyacencia[origen].push_back(destino); //agregue
+        if (origen == destino) { return; }
 
-        /*int i = buscarVertice(origen);
-        int j = buscarVertice(destino);
+        if (!existeArista(origen, destino)) {
+            listaAdyacencia[origen].push_back(destino);
+        }
 
-        matrizAdyacencia[i][j] = 1;
-        matrizAdyacencia[j][i] = 1;*/
+        if (!existeArista(destino, origen)) {
+            listaAdyacencia[destino].push_back(origen);
+        }
     }
 
-    bool existeVertice(T v) {
-        /*return buscarVertice(v) != T();*/
-
-		return matrizAdyacencia.find(v) != matrizAdyacencia.end();
+    void reiniciar() {
+        listaAdyacencia.clear();
     }
 
     int cantidadVertices() {
-        return matrizAdyacencia.size();
+        return listaAdyacencia.size();
     }
-
-    int consultarPos(int i, int j) { //corregir
-        int valor = matrizAdyacencia[i][j];
-        return valor;
-    }
-
-    //corregir
-    //void recorrerAmplitud(T origen, int profundidad, std::function<void(T)> accion) { //BFS
-    //    int indiceOrigen = buscarVertice(origen);
-    //    if (indiceOrigen == -1) { return; }
-
-    //    std::vector<bool> visitado(vertices.size(), false);
-    //    std::vector<int> distancia(vertices.size(), -1);
-    //    std::queue<int> queue;
-
-    //    queue.push(indiceOrigen);
-    //    visitado[indiceOrigen] = true;
-    //    distancia[indiceOrigen] = 0;
-
-    //    while (!queue.empty()) {
-    //        int actual = queue.front();
-    //        queue.pop();
-    //        if (distancia[actual] >= profundidad) { continue; }
-    //        for (int vecino = 0; vecino < vertices.size(); vecino++) {
-    //            if (!visitado[vecino] && matrizAdyacencia[actual][vecino] == 1) {
-    //                visitado[vecino] = true;
-    //                distancia[vecino] = distancia[actual] + 1;
-    //                accion(vertices[vecino]);
-    //                queue.push(vecino);
-    //            }
-    //        }
-    //    }
-    //}
-
-    std::unordered_map <T, std::vector<T>> getMatrizAdyacencia() {
-        return matrizAdyacencia;
-	}
 };
