@@ -1,54 +1,98 @@
 #pragma once
-#include <algorithm>
-#include <unordered_map>
 #include <vector>
 
 template <typename T>
 class Grafo {
 private:
-    std::unordered_map<T, std::vector<T>> listaAdyacencia;
+    std::vector<T> vertices;
+    std::vector<std::vector<int>> matrizAdyacencia;
 
 public:
-    bool existeVertice(T vertice) {
-        return listaAdyacencia.find(vertice) != listaAdyacencia.end();
-    }
-
     void agregarVertice(T vertice) {
-        if (!existeVertice(vertice)) {
-            listaAdyacencia[vertice];
+        if (buscarIndice(vertice) != -1) { return; }
+        vertices.push_back(vertice);
+
+        for (std::vector<int>& fila : matrizAdyacencia) {
+            fila.push_back(0);
         }
+
+        std::vector<int> nuevaFila(vertices.size(), 0);
+        matrizAdyacencia.push_back(nuevaFila);
     }
 
     bool existeArista(T origen, T destino) {
-        auto posicion = listaAdyacencia.find(origen);
+        int indiceOrigen = buscarIndice(origen);
+        int indiceDestino = buscarIndice(destino);
 
-        if (posicion == listaAdyacencia.end()) { return false; }
+        if (indiceOrigen == -1 || indiceDestino == -1) { return false; }
+        return matrizAdyacencia[indiceOrigen][indiceDestino] == 1;
+    }
 
-        std::vector<T>& vecinos = posicion->second;
-
-        return std::find(vecinos.begin(), vecinos.end(), destino) != vecinos.end();
+    int buscarIndice(T vertice) {
+        int indice = 0;
+        for (T actual : vertices) {
+            if (actual == vertice) {
+                return indice;
+            }
+            indice++;
+        }
+        return -1;
     }
 
     void agregarArista(T origen, T destino) {
+        if (origen == destino) {
+            return;
+        }
+
         agregarVertice(origen);
         agregarVertice(destino);
 
-        if (origen == destino) { return; }
+        int indiceOrigen = buscarIndice(origen);
+        int indiceDestino = buscarIndice(destino);
 
-        if (!existeArista(origen, destino)) {
-            listaAdyacencia[origen].push_back(destino);
-        }
-
-        if (!existeArista(destino, origen)) {
-            listaAdyacencia[destino].push_back(origen);
-        }
+        matrizAdyacencia[indiceOrigen][indiceDestino] = 1;
+        matrizAdyacencia[indiceDestino][indiceOrigen] = 1;
     }
 
     void reiniciar() {
-        listaAdyacencia.clear();
+        vertices.clear();
+        matrizAdyacencia.clear();
     }
 
-    int cantidadVertices() {
-        return listaAdyacencia.size();
+    std::vector<std::vector<int>> obtenerMatrizAdyacencia() {
+        return matrizAdyacencia;
+    }
+
+    std::vector<std::vector<int>> calcularMatrizCaminos() {
+        std::vector<std::vector<int>> matrizCaminos = matrizAdyacencia;
+        int cantidad = (int)vertices.size();
+
+        for (int i = 0; i < cantidad; i++) {
+            matrizCaminos[i][i] = 1;
+        }
+
+        for (int i = 0; i < cantidad; i++) {
+            std::vector<int> procesados(cantidad, 0);
+            bool verticeDetectado = true;
+
+            while (verticeDetectado) {
+                verticeDetectado = false;
+
+                for (int j = 0; j < cantidad; j++) {
+                    if (matrizCaminos[i][j] == 1 && procesados[j] == 0) {
+                        procesados[j] = 1;
+
+                        for (int k = 0; k < cantidad; k++) {
+                            if (matrizCaminos[j][k] == 1) {
+                                matrizCaminos[i][k] = 1;
+                            }
+                        }
+                        verticeDetectado = true;
+                    }
+                }
+            }
+        }
+
+        return matrizCaminos;
     }
 };

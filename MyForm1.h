@@ -23,9 +23,7 @@ namespace GrafoConexo {
 			InitializeComponent();
 			grafo = new Grafo<char>;
 			cantidadVertices = 0;
-			estado = 2; //manual
 			pasoActual = 0;
-			ultimoPaso = 1;
 			grafoCreado = false;
 			prepararEntradaManual();
 		}
@@ -55,10 +53,8 @@ namespace GrafoConexo {
 		System::ComponentModel::Container^ components;
 		int cantidadVertices;
 		Grafo<char>* grafo;
-		int estado;
-		int pasoActual;
-		int ultimoPaso;
 		bool grafoCreado;
+		int pasoActual;
 		String^ TextoVertice(char vertice) { return gcnew String((wchar_t)vertice, 1); }
 	private: System::Windows::Forms::TextBox^ pruebTexto1;
 	private: System::Windows::Forms::Panel^ panelConfig;
@@ -199,7 +195,7 @@ namespace GrafoConexo {
 			this->btnsiguiente->Name = L"btnsiguiente";
 			this->btnsiguiente->Size = System::Drawing::Size(105, 33);
 			this->btnsiguiente->TabIndex = 8;
-			this->btnsiguiente->Text = L"siguiente";
+			this->btnsiguiente->Text = L"Siguiente";
 			this->btnsiguiente->UseVisualStyleBackColor = true;
 			this->btnsiguiente->Click += gcnew System::EventHandler(this, &MyForm1::btnsiguiente_Click);
 			// 
@@ -247,127 +243,138 @@ namespace GrafoConexo {
 		DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &option, sizeof(option));
 	}
 	private: System::Void numericUpDown1_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
-		if (radioButton2->Checked) {
-			prepararEntradaManual();
-		}
+		prepararEntradaManual();
 	}
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
-		srand(time(NULL));
-		this->cantidadVertices = (int)numericUpDown1->Value;
+		cantidadVertices = (int)numericUpDown1->Value;
 		grafo->reiniciar();
-		for (char i = 'A'; i < 'A' + cantidadVertices; i++) grafo->agregarVertice(i);
 
-		if (estado == 1) {
-			for (char origen = 'A'; origen < 'A' + cantidadVertices; origen++) {
-				char destino = origen;
-				destino++;
-				for (;destino < 'A' + cantidadVertices; destino++) {
-					if (rand() % 2 == 0) {
-						grafo->agregarArista(origen, destino);
-					}
-				}
-			}
-		} else if (estado == 2) {
+		for (char vertice = 'A'; vertice < 'A' + cantidadVertices; vertice++) {
+			grafo->agregarVertice(vertice);
+		}
+
+		if (radioButton1->Checked) {
+			generarAristasAleatorias();
+		}
+		else {
 			if (!cargarAristasManuales()) {
 				grafoCreado = false;
 				btnsiguiente->Enabled = false;
 				return;
 			}
 		}
+
 		actualizarLista();
-		actualizarMatriz();
+		mostrarMatriz(grafo->obtenerMatrizAdyacencia(),L"Matriz de adyacencia");
 		pictureGrafo->Invalidate();
+
 		grafoCreado = true;
 		mostrarPaso(0);
-
 	}
 	private: System::Void radioButton1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 		if (radioButton1->Checked) {
-			estado = 1;
-			pruebTexto1->ReadOnly = true;
 			prepararEntradaManual();
 		}
 	}
 	private: System::Void radioButton2_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 		if (radioButton2->Checked) {
-			estado = 2;
-			pruebTexto1->ReadOnly = false;
-			prepararEntradaManual();
+			if (grafoCreado) {
+				actualizarLista();
+			}
+			else {
+				prepararEntradaManual();
+			}
 		}
 	}
 	private: System::Void pictureGrafo_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
-		if (cantidadVertices <= 0) return;
-		Graphics^ dibujo = e->Graphics;
-		dibujo->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
-
-		int n = cantidadVertices;
-		float radioNodo = 20.0f;
-		float centroX = pictureGrafo->Width / 2.0f;
-		float centroY = pictureGrafo->Height / 2.0f;
-
-		float radioGrafo = Math::Min(centroX, centroY) - radioNodo - 25.0f;
-		const double PI = 3.14159265358979;
-		cli::array<PointF>^ posiciones = gcnew cli::array<PointF>(n);
-
-		for (int i = 0; i < n; i++) {
-			double angulo = -PI / 2 + 2 * PI * i / n;
-			posiciones[i] = PointF(centroX + (float)(radioGrafo * Math::Cos(angulo)), centroY + (float)(radioGrafo * Math::Sin(angulo)));
+		if (cantidadVertices == 0) {
+			return;
 		}
 
-		Pen^ lapiz = gcnew Pen(Color::LightGray, 2.0f); char origen = 'A';
+		Graphics^ dibujo = e->Graphics;
+		float radioNodo = 20;
+		float centroX = pictureGrafo->Width / 2;
+		float centroY = pictureGrafo->Height / 2;
+		float radioGrafo = Math::Min(centroX, centroY) - 45;
 
-		for (int i = 0; i < n; i++, origen++) {
-			char destino = origen;
-			destino++;
+		cli::array<PointF>^ posiciones = gcnew cli::array<PointF>(cantidadVertices);
 
-			for (int j = i + 1; j < n; j++, destino++) {
+		for (int i = 0; i < cantidadVertices; i++) {
+			double angulo = -Math::PI / 2 + 2 * Math::PI * i / cantidadVertices;
+			posiciones[i] = PointF(centroX + radioGrafo * Math::Cos(angulo), centroY + radioGrafo * Math::Sin(angulo));
+		}
+
+		Pen^ lapiz = gcnew Pen(Color::LightGray, 2);
+
+		for (int i = 0; i < cantidadVertices; i++) {
+			for (int j = i + 1; j < cantidadVertices; j++) {
+				char origen = 'A' + i;
+				char destino = 'A' + j;
+
 				if (grafo->existeArista(origen, destino)) {
-					dibujo->DrawLine(lapiz, posiciones[i], posiciones[j]);
+					dibujo->DrawLine(lapiz, posiciones[i],posiciones[j]);
 				}
 			}
 		}
 
 		Brush^ relleno = gcnew SolidBrush(Color::FromArgb(88, 101, 242));
-
-		System::Drawing::Font^ fuente = gcnew System::Drawing::Font(L"Segoe UI", 11.0f,FontStyle::Bold);
+		System::Drawing::Font^ fuente = gcnew System::Drawing::Font(L"Segoe UI", 11, FontStyle::Bold);
 
 		StringFormat^ formato = gcnew StringFormat();
 		formato->Alignment = StringAlignment::Center;
 		formato->LineAlignment = StringAlignment::Center;
 
-		char etiqueta = 'A';
-
-		for (int i = 0; i < n; i++, etiqueta++) {
-			RectangleF nodo(posiciones[i].X - radioNodo,posiciones[i].Y - radioNodo,2 * radioNodo,2 * radioNodo);
-
+		for (int i = 0; i < cantidadVertices; i++) {
+			RectangleF nodo(posiciones[i].X - radioNodo, posiciones[i].Y - radioNodo, radioNodo * 2, radioNodo * 2);
 			dibujo->FillEllipse(relleno, nodo);
 			dibujo->DrawEllipse(Pens::White, nodo);
-			dibujo->DrawString(TextoVertice(etiqueta),fuente,Brushes::White,nodo,formato);
+			dibujo->DrawString(TextoVertice('A' + i), fuente, Brushes::White, nodo, formato);
 		}
 	}
 
 	private: System::Void btnAtras_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (pasoActual > 0) mostrarPaso(pasoActual - 1);
+		if (pasoActual > 0) {
+			mostrarPaso(pasoActual - 1);
+		}
 	}
+
 	private: System::Void btnsiguiente_Click(System::Object^ sender, System::EventArgs^ e) {
-		siguiente();
+		if (pasoActual < 2) {
+			mostrarPaso(pasoActual + 1);
+		}
+	}
+
+	void generarAristasAleatorias() {
+		srand(time(NULL));
+		for (char origen = 'A'; origen < 'A' + cantidadVertices; origen++) {
+			char destino = origen;
+			destino++;
+
+			for (; destino < 'A' + cantidadVertices; destino++) {
+				if (rand() % 2 == 0) {
+					grafo->agregarArista(origen, destino);
+				}
+			}
+		}
 	}
 
 	void mostrarPaso(int paso) {
-		panelConfig->Visible = (paso == 0);
-		panelGrafo->Visible = (paso == 1);
 		pasoActual = paso;
+		panelConfig->Visible = (paso == 0);
+		panelGrafo->Visible = (paso > 0);
+
+		if (paso == 1) { mostrarMatriz(grafo->obtenerMatrizAdyacencia(),L"Matriz de adyacencia"); }
+		else if (paso == 2) { mostrarMatriz(grafo->calcularMatrizCaminos(),L"Matriz de caminos"); }
 
 		btnAtras->Enabled = (paso > 0);
-		btnsiguiente->Enabled = (paso < ultimoPaso) && (paso > 0 || grafoCreado);
+		btnsiguiente->Enabled = (paso < 2) && (paso > 0 || grafoCreado);
 	}
 
-	void siguiente() {
-		if (pasoActual < ultimoPaso) mostrarPaso(pasoActual + 1);
-	}
-
-	void actualizarMatriz() {
+	void mostrarMatriz(std::vector<std::vector<int>> matriz, String^ titulo) {
 		System::Text::StringBuilder^ texto = gcnew System::Text::StringBuilder();
+
+		texto->AppendLine(titulo);
+		texto->AppendLine();
 		texto->Append(L"   ");
 
 		for (char vertice = 'A'; vertice < 'A' + cantidadVertices; vertice++) {
@@ -376,14 +383,17 @@ namespace GrafoConexo {
 		}
 
 		texto->AppendLine();
+		char origen = 'A';
 
-		for (char origen = 'A'; origen < 'A' + cantidadVertices; origen++) {
+		for (int i = 0; i < cantidadVertices; i++, origen++) {
 			texto->Append(TextoVertice(origen));
 			texto->Append(L"  ");
 
-			for (char destino = 'A'; destino < 'A' + cantidadVertices; destino++) {
-				if (grafo->existeArista(origen, destino)) { texto->Append(L"1  ");
-				} else {
+			for (int j = 0; j < cantidadVertices; j++) {
+				if (matriz[i][j] == 1) {
+					texto->Append(L"1  ");
+				}
+				else {
 					texto->Append(L"0  ");
 				}
 			}
@@ -394,38 +404,31 @@ namespace GrafoConexo {
 
 	void actualizarLista() {
 		System::Text::StringBuilder^ texto = gcnew System::Text::StringBuilder();
-
 		texto->Append(L"Vertices: ");
-		char vertice = 'A';
 
-		for (int i = 0; i < cantidadVertices; i++, vertice++) {
-			if (i > 0) { texto->Append(L", "); }
+		for (char vertice = 'A'; vertice < 'A' + cantidadVertices; vertice++) {
+			if (vertice != 'A') {
+				texto->Append(L", ");
+			}
 			texto->Append(TextoVertice(vertice));
 		}
 
 		texto->AppendLine();
-		char origen = 'A';
 
-		for (int i = 0; i < cantidadVertices; i++, origen++) {
-
+		for (char origen = 'A'; origen < 'A' + cantidadVertices; origen++) {
 			texto->Append(TextoVertice(origen));
 			texto->Append(L": ");
-
 			bool primeraConexion = true;
-			char destino = 'A';
 
-			for (int j = 0; j < cantidadVertices; j++, destino++) {
-
+			for (char destino = 'A'; destino < 'A' + cantidadVertices; destino++) {
 				if (grafo->existeArista(origen, destino)) {
 					if (!primeraConexion) {
 						texto->Append(L",");
 					}
-
 					texto->Append(TextoVertice(destino));
 					primeraConexion = false;
 				}
 			}
-
 			if (primeraConexion) {
 				texto->Append(L"Sin aristas");
 			}
@@ -443,42 +446,33 @@ namespace GrafoConexo {
 	void prepararEntradaManual() {
 		int total = (int)numericUpDown1->Value;
 		System::Text::StringBuilder^ texto = gcnew System::Text::StringBuilder();
-
 		texto->Append(L"Vertices: ");
-		char vertice = 'A';
 
-		for (int i = 0; i < total; i++, vertice++) {
-			if (i > 0) { texto->Append(L", "); }
-
+		for (char vertice = 'A'; vertice < 'A' + total; vertice++) {
+			if (vertice != 'A') {
+				texto->Append(L", ");
+			}
 			texto->Append(TextoVertice(vertice));
 		}
 
 		texto->AppendLine();
-		vertice = 'A';
 
-		for (int i = 0; i < total; i++, vertice++) {
+		for (char vertice = 'A'; vertice < 'A' + total; vertice++) {
 			texto->Append(TextoVertice(vertice));
 			texto->Append(L":");
 
-			if (i < total - 1) {
+			if (vertice < 'A' + total - 1) {
 				texto->AppendLine();
 			}
 		}
-
 		pruebTexto1->Text = texto->ToString();
 	}
 
 	bool cargarAristasManuales() {
-		bool conexiones[12][12] = {};
 		array<String^>^ lineas = pruebTexto1->Lines;
 
 		if (lineas->Length < cantidadVertices + 1) {
 			mostrarErrorManual(L"Debe existir una linea para cada vertice.");
-			return false;
-		}
-
-		if (!lineas[0]->Trim()->StartsWith(L"Vertices:",StringComparison::OrdinalIgnoreCase)) {
-			mostrarErrorManual(L"La primera linea debe comenzar con \"Vertices:\".");
 			return false;
 		}
 
@@ -488,10 +482,11 @@ namespace GrafoConexo {
 
 		for (int fila = 0; fila < cantidadVertices; fila++, origen++) {
 			String^ linea = lineas[fila + 1]->Trim()->ToUpperInvariant();
+
 			String^ prefijo = TextoVertice(origen) + L":";
 
 			if (!linea->StartsWith(prefijo)) {
-				mostrarErrorManual(L"Se esperaba la linea " + prefijo + L" en la posicion correspondiente.");
+				mostrarErrorManual(L"Se esperaba la linea " + prefijo);
 				return false;
 			}
 
@@ -505,60 +500,27 @@ namespace GrafoConexo {
 
 			for each (String ^ elemento in destinos) {
 				String^ textoDestino = elemento->Trim();
-				if (textoDestino->Length != 1) { mostrarErrorManual(L"Cada destino debe ser una sola letra " L"separada por comas.");
+				if (textoDestino->Length != 1) {
+					mostrarErrorManual(L"Cada destino debe ser una sola letra.");
 					return false;
 				}
 
 				wchar_t letra = textoDestino[0];
 
 				if (letra < L'A' || letra >= L'A' + cantidadVertices) {
-					mostrarErrorManual(L"Se ingreso un vertice que no pertenece " L"al grafo.");
+					mostrarErrorManual(L"El vertice destino no pertenece al grafo.");
 					return false;
 				}
 
-				int columna = letra - L'A';
+				char destino = (char)letra;
 
-				if (fila == columna) { mostrarErrorManual(L"No se permiten conexiones de un " L"vertice consigo mismo.");
+				if (origen == destino) {
+					mostrarErrorManual(L"No se permiten conexiones de un vertice consigo mismo.");
 					return false;
 				}
-
-				if (conexiones[fila][columna]) {
-					mostrarErrorManual(L"No repita una conexion en la misma fila.");
-					return false;
-				}
-
-				conexiones[fila][columna] = true;
+				grafo->agregarArista(origen, destino);
 			}
 		}
-
-		for (int i = cantidadVertices + 1; i < lineas->Length; i++) {
-			if (!String::IsNullOrWhiteSpace(lineas[i])) {
-				mostrarErrorManual(L"Hay lineas adicionales que no pertenecen " L"al formato.");
-				return false;
-			}
-		}
-
-		char verticeA = 'A';
-
-		for (int i = 0; i < cantidadVertices; i++, verticeA++) {
-			char verticeB = verticeA; verticeB++;
-			for (int j = i + 1; j < cantidadVertices; j++, verticeB++) {
-				if (conexiones[i][j] != conexiones[j][i]) {
-					mostrarErrorManual(L"La conexion entre " + TextoVertice(verticeA) + L" y " + TextoVertice(verticeB) + L" debe aparecer en ambas filas.");
-					return false;
-				}
-			}
-		}
-
-		verticeA = 'A';
-		for (int i = 0; i < cantidadVertices; i++, verticeA++) {
-			char verticeB = verticeA; verticeB++;
-			for (int j = i + 1; j < cantidadVertices; j++, verticeB++) {
-				if (conexiones[i][j]) { grafo->agregarArista(verticeA, verticeB);
-				}
-			}
-		}
-
 		return true;
 	}
 };
