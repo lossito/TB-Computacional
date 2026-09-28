@@ -272,9 +272,6 @@ namespace GrafoConexo {
 		mostrarPaso(0);
 	}
 	private: System::Void radioButton1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
-		if (radioButton1->Checked) {
-			prepararEntradaManual();
-		}
 	}
 	private: System::Void radioButton2_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 		if (radioButton2->Checked) {
