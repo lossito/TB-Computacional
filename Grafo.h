@@ -10,11 +10,11 @@ private:
 public:
     void agregarVertice(T vertice) {
         if (buscarIndice(vertice) != -1) { return; }
-        vertices.push_back(vertice);
 
-        for (std::vector<int>& fila : matrizAdyacencia) {
-            fila.push_back(0);
-        }
+        vertices.push_back(vertice);
+        int cantidadFilas = matrizAdyacencia.size();
+
+        for (int i = 0; i < cantidadFilas; i++) { matrizAdyacencia[i].push_back(0); }
 
         std::vector<int> nuevaFila(vertices.size(), 0);
         matrizAdyacencia.push_back(nuevaFila);
@@ -29,12 +29,10 @@ public:
     }
 
     int buscarIndice(T vertice) {
-        int indice = 0;
-        for (T actual : vertices) {
-            if (actual == vertice) {
-                return indice;
+        for (int i = 0; i < vertices.size(); i++) {
+            if (vertices[i] == vertice) {
+                return i;
             }
-            indice++;
         }
         return -1;
     }
@@ -67,16 +65,14 @@ public:
         std::vector<std::vector<int>> matrizCaminos = matrizAdyacencia;
         int cantidad = (int)vertices.size();
 
-        for (int i = 0; i < cantidad; i++) {
-            matrizCaminos[i][i] = 1;
-        }
+        for (int i = 0; i < cantidad; i++) matrizCaminos[i][i] = 1;
 
         for (int i = 0; i < cantidad; i++) {
             std::vector<int> procesados(cantidad, 0);
-            bool verticeDetectado = true;
+            bool huboProcesamiento = true;
 
-            while (verticeDetectado) {
-                verticeDetectado = false;
+            while (huboProcesamiento) {
+                huboProcesamiento = false;
 
                 for (int j = 0; j < cantidad; j++) {
                     if (matrizCaminos[i][j] == 1 && procesados[j] == 0) {
@@ -87,12 +83,11 @@ public:
                                 matrizCaminos[i][k] = 1;
                             }
                         }
-                        verticeDetectado = true;
+                        huboProcesamiento = true;
                     }
                 }
             }
         }
-
         return matrizCaminos;
     }
 };

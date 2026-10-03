@@ -55,7 +55,7 @@ namespace GrafoConexo {
 		Grafo<char>* grafo;
 		bool grafoCreado;
 		int pasoActual;
-		String^ TextoVertice(char vertice) { return gcnew String((wchar_t)vertice, 1); }
+		String^ textoVertice(char vertice) { return System::Char::ToString(vertice); }
 	private: System::Windows::Forms::TextBox^ pruebTexto1;
 	private: System::Windows::Forms::Panel^ panelConfig;
 	private: System::Windows::Forms::Panel^ panelGrafo;
@@ -274,14 +274,6 @@ namespace GrafoConexo {
 	private: System::Void radioButton1_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 	}
 	private: System::Void radioButton2_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
-		if (radioButton2->Checked) {
-			if (grafoCreado) {
-				actualizarLista();
-			}
-			else {
-				prepararEntradaManual();
-			}
-		}
 	}
 	private: System::Void pictureGrafo_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 		if (cantidadVertices == 0) {
@@ -294,22 +286,22 @@ namespace GrafoConexo {
 		float centroY = pictureGrafo->Height / 2;
 		float radioGrafo = Math::Min(centroX, centroY) - 45;
 
-		cli::array<PointF>^ posiciones = gcnew cli::array<PointF>(cantidadVertices);
+		std::vector<float> posicionesX(cantidadVertices);
+		std::vector<float> posicionesY(cantidadVertices);
 
 		for (int i = 0; i < cantidadVertices; i++) {
 			double angulo = -Math::PI / 2 + 2 * Math::PI * i / cantidadVertices;
-			posiciones[i] = PointF(centroX + radioGrafo * Math::Cos(angulo), centroY + radioGrafo * Math::Sin(angulo));
+			posicionesX[i] = (float)(centroX + radioGrafo * Math::Cos(angulo));
+			posicionesY[i] = (float)(centroY + radioGrafo * Math::Sin(angulo));
 		}
 
+		std::vector<std::vector<int>> matriz = grafo->obtenerMatrizAdyacencia();
 		Pen^ lapiz = gcnew Pen(Color::LightGray, 2);
 
 		for (int i = 0; i < cantidadVertices; i++) {
 			for (int j = i + 1; j < cantidadVertices; j++) {
-				char origen = 'A' + i;
-				char destino = 'A' + j;
-
-				if (grafo->existeArista(origen, destino)) {
-					dibujo->DrawLine(lapiz, posiciones[i],posiciones[j]);
+				if (matriz[i][j] == 1) {
+					dibujo->DrawLine(lapiz, posicionesX[i], posicionesY[i], posicionesX[j], posicionesY[j]);
 				}
 			}
 		}
@@ -322,10 +314,10 @@ namespace GrafoConexo {
 		formato->LineAlignment = StringAlignment::Center;
 
 		for (int i = 0; i < cantidadVertices; i++) {
-			RectangleF nodo(posiciones[i].X - radioNodo, posiciones[i].Y - radioNodo, radioNodo * 2, radioNodo * 2);
+			RectangleF nodo(posicionesX[i] - radioNodo, posicionesY[i] - radioNodo, radioNodo * 2, radioNodo * 2);
 			dibujo->FillEllipse(relleno, nodo);
 			dibujo->DrawEllipse(Pens::White, nodo);
-			dibujo->DrawString(TextoVertice('A' + i), fuente, Brushes::White, nodo, formato);
+			dibujo->DrawString(textoVertice('A' + i), fuente, Brushes::White, nodo, formato);
 		}
 	}
 
@@ -344,10 +336,7 @@ namespace GrafoConexo {
 	void generarAristasAleatorias() {
 		srand(time(NULL));
 		for (char origen = 'A'; origen < 'A' + cantidadVertices; origen++) {
-			char destino = origen;
-			destino++;
-
-			for (; destino < 'A' + cantidadVertices; destino++) {
+			for (char destino = origen + 1; destino < 'A' + cantidadVertices; destino++) {
 				if (rand() % 2 == 0) {
 					grafo->agregarArista(origen, destino);
 				}
@@ -374,25 +363,20 @@ namespace GrafoConexo {
 		texto->AppendLine();
 		texto->Append(L"   ");
 
-		for (char vertice = 'A'; vertice < 'A' + cantidadVertices; vertice++) {
-			texto->Append(TextoVertice(vertice));
+		for (int j = 0; j < cantidadVertices; j++) {
+			texto->Append(textoVertice(('A' + j)));
 			texto->Append(L"  ");
 		}
 
 		texto->AppendLine();
-		char origen = 'A';
 
-		for (int i = 0; i < cantidadVertices; i++, origen++) {
-			texto->Append(TextoVertice(origen));
+		for (int i = 0; i < cantidadVertices; i++) {
+			texto->Append(textoVertice(('A' + i)));
 			texto->Append(L"  ");
 
 			for (int j = 0; j < cantidadVertices; j++) {
-				if (matriz[i][j] == 1) {
-					texto->Append(L"1  ");
-				}
-				else {
-					texto->Append(L"0  ");
-				}
+				texto->Append(matriz[i][j]);
+				texto->Append(L"  ");
 			}
 			texto->AppendLine();
 		}
@@ -407,13 +391,13 @@ namespace GrafoConexo {
 			if (vertice != 'A') {
 				texto->Append(L", ");
 			}
-			texto->Append(TextoVertice(vertice));
+			texto->Append(textoVertice(vertice));
 		}
 
 		texto->AppendLine();
 
 		for (char origen = 'A'; origen < 'A' + cantidadVertices; origen++) {
-			texto->Append(TextoVertice(origen));
+			texto->Append(textoVertice(origen));
 			texto->Append(L": ");
 			bool primeraConexion = true;
 
@@ -422,7 +406,7 @@ namespace GrafoConexo {
 					if (!primeraConexion) {
 						texto->Append(L",");
 					}
-					texto->Append(TextoVertice(destino));
+					texto->Append(textoVertice(destino));
 					primeraConexion = false;
 				}
 			}
@@ -449,13 +433,13 @@ namespace GrafoConexo {
 			if (vertice != 'A') {
 				texto->Append(L", ");
 			}
-			texto->Append(TextoVertice(vertice));
+			texto->Append(textoVertice(vertice));
 		}
 
 		texto->AppendLine();
 
 		for (char vertice = 'A'; vertice < 'A' + total; vertice++) {
-			texto->Append(TextoVertice(vertice));
+			texto->Append(textoVertice(vertice));
 			texto->Append(L":");
 
 			if (vertice < 'A' + total - 1) {
@@ -473,14 +457,11 @@ namespace GrafoConexo {
 			return false;
 		}
 
-		array<wchar_t>^ separador = gcnew array<wchar_t>(1);
-		separador[0] = L',';
 		char origen = 'A';
 
 		for (int fila = 0; fila < cantidadVertices; fila++, origen++) {
 			String^ linea = lineas[fila + 1]->Trim()->ToUpperInvariant();
-
-			String^ prefijo = TextoVertice(origen) + L":";
+			String^ prefijo = textoVertice(origen) + L":";
 
 			if (!linea->StartsWith(prefijo)) {
 				mostrarErrorManual(L"Se esperaba la linea " + prefijo);
@@ -493,18 +474,18 @@ namespace GrafoConexo {
 				continue;
 			}
 
-			array<String^>^ destinos = contenido->Split(separador);
+			array<String^>^ destinos = contenido->Split(',');
 
-			for each (String ^ elemento in destinos) {
-				String^ textoDestino = elemento->Trim();
+			for (int i = 0; i < destinos->Length; i++) {
+				String^ textoDestino = destinos[i]->Trim();
 				if (textoDestino->Length != 1) {
 					mostrarErrorManual(L"Cada destino debe ser una sola letra.");
 					return false;
 				}
 
-				wchar_t letra = textoDestino[0];
+				int letra = textoDestino[0];
 
-				if (letra < L'A' || letra >= L'A' + cantidadVertices) {
+				if (letra < 'A' || letra >= 'A' + cantidadVertices) {
 					mostrarErrorManual(L"El vertice destino no pertenece al grafo.");
 					return false;
 				}
