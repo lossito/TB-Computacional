@@ -295,7 +295,7 @@ namespace GrafoConexo {
 
 		std::vector<std::vector<int>> matriz = grafo->obtenerMatrizAdyacencia();
 		Pen^ lapiz = gcnew Pen(Color::LightGray, 2);
-		lapiz->CustomEndCap = gcnew System::Drawing::Drawing2D::AdjustableArrowCap(6, 6);
+		lapiz->CustomEndCap = gcnew System::Drawing::Drawing2D::AdjustableArrowCap(7, 7);
 
 		for (int i = 0; i < cantidadVertices; i++) {
 			for (int j = 0; j < cantidadVertices; j++) {
