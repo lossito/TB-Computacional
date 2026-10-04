@@ -49,7 +49,6 @@ public:
         int indiceDestino = buscarIndice(destino);
 
         matrizAdyacencia[indiceOrigen][indiceDestino] = 1;
-        matrizAdyacencia[indiceDestino][indiceOrigen] = 1;
     }
 
     void reiniciar() {

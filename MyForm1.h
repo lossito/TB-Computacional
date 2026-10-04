@@ -276,9 +276,7 @@ namespace GrafoConexo {
 	private: System::Void radioButton2_CheckedChanged(System::Object^ sender, System::EventArgs^ e) {
 	}
 	private: System::Void pictureGrafo_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
-		if (cantidadVertices == 0) {
-			return;
-		}
+		if (cantidadVertices == 0) return;
 
 		Graphics^ dibujo = e->Graphics;
 		float radioNodo = 20;
@@ -297,11 +295,16 @@ namespace GrafoConexo {
 
 		std::vector<std::vector<int>> matriz = grafo->obtenerMatrizAdyacencia();
 		Pen^ lapiz = gcnew Pen(Color::LightGray, 2);
+		lapiz->CustomEndCap = gcnew System::Drawing::Drawing2D::AdjustableArrowCap(6, 6);
 
 		for (int i = 0; i < cantidadVertices; i++) {
-			for (int j = i + 1; j < cantidadVertices; j++) {
+			for (int j = 0; j < cantidadVertices; j++) {
 				if (matriz[i][j] == 1) {
+					float puntaX = (posicionesX[i] + 2 * posicionesX[j]) / 3;
+					float puntaY = (posicionesY[i] + 2 * posicionesY[j]) / 3;
+
 					dibujo->DrawLine(lapiz, posicionesX[i], posicionesY[i], posicionesX[j], posicionesY[j]);
+					dibujo->DrawLine(lapiz, posicionesX[i], posicionesY[i], puntaX, puntaY);
 				}
 			}
 		}
@@ -336,8 +339,8 @@ namespace GrafoConexo {
 	void generarAristasAleatorias() {
 		srand(time(NULL));
 		for (char origen = 'A'; origen < 'A' + cantidadVertices; origen++) {
-			for (char destino = origen + 1; destino < 'A' + cantidadVertices; destino++) {
-				if (rand() % 2 == 0) {
+			for (char destino = 'A'; destino < 'A' + cantidadVertices; destino++) {
+				if (origen != destino && rand() % 2 == 0) {
 					grafo->agregarArista(origen, destino);
 				}
 			}
