@@ -155,8 +155,8 @@ public:
         for (int a = 1; a < n; a++) {
             int actual = orden[a];
             int b = a - 1;
-            while (b >= 0 && (cantidad[orden[b]] < cantidad[actual] ||
-                (cantidad[orden[b]] == cantidad[actual] && primero[orden[b]] > primero[actual]))) {
+            while (b >= 0 && (cantidad[orden[b]] < cantidad[actual] || (cantidad[orden[b]] == cantidad[actual] && primero[orden[b]] > primero[actual]) ||
+                    (cantidad[orden[b]] == cantidad[actual] && primero[orden[b]] == primero[actual] && m[orden[b]] < m[actual]))) {
                 orden[b + 1] = orden[b];
                 b--;
             }

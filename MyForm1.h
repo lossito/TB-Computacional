@@ -375,7 +375,7 @@ namespace GrafoConexo {
 		System::Drawing::Font^ fuente = gcnew System::Drawing::Font(L"Segoe UI", 11, FontStyle::Bold);
 
 		// colores por componente (solo en la etapa final)
-		array<Color>^ paleta = gcnew array<Color>(8);
+		array<Color>^ paleta = gcnew array<Color>(12);
 		paleta[0] = Color::FromArgb(88, 101, 242);
 		paleta[1] = Color::FromArgb(237, 66, 69);
 		paleta[2] = Color::FromArgb(35, 165, 90);
@@ -384,6 +384,10 @@ namespace GrafoConexo {
 		paleta[5] = Color::FromArgb(230, 120, 30);
 		paleta[6] = Color::FromArgb(0, 150, 200);
 		paleta[7] = Color::FromArgb(140, 100, 220);
+		paleta[8] = Color::FromArgb(130, 80, 45);
+		paleta[9] = Color::FromArgb(0, 110, 105);
+		paleta[10] = Color::FromArgb(180, 65, 115);
+		paleta[11] = Color::FromArgb(90, 105, 120);
 
 		StringFormat^ formato = gcnew StringFormat();
 		formato->Alignment = StringAlignment::Center;
