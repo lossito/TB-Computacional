@@ -92,7 +92,7 @@ namespace GrafoConexo {
 			btnSiguiente->Anchor = (AnchorStyles)(AnchorStyles::Bottom | AnchorStyles::Right);
 			pictureGrafo->SizeChanged += gcnew System::EventHandler(this, &MyForm1::pictureGrafo_SizeChanged);
 			btnInicio = gcnew System::Windows::Forms::Button();
-			btnInicio->Text = L"Ir al inicio";
+			btnInicio->Text = L"Fase anterior";
 			btnInicio->Size = btnAtras->Size;
 			btnInicio->Location = System::Drawing::Point(btnAtras->Right + 8, btnAtras->Top);
 			btnInicio->Anchor = btnAtras->Anchor;
@@ -103,7 +103,7 @@ namespace GrafoConexo {
 			btnInicio->BringToFront();
 
 			btnFinal = gcnew System::Windows::Forms::Button();
-			btnFinal->Text = L"Ir al final";
+			btnFinal->Text = L"Fase siguiente";
 			btnFinal->Size = btnSiguiente->Size;
 			btnFinal->Location = System::Drawing::Point(btnSiguiente->Left - btnFinal->Width - 8, btnSiguiente->Top);
 			btnFinal->Anchor = btnSiguiente->Anchor;
@@ -325,13 +325,35 @@ namespace GrafoConexo {
 		   }
 #pragma endregion
 	private: System::Void btnInicio_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (cuadros->Count > 0) {
-			mostrarPaso(1);
+		if (pasoActual > 1) {
+			String^ fase = cuadros[pasoActual - 1]->titulo->Split(':')[0];
+			int i = pasoActual - 2;
+
+			while (i >= 0 && cuadros[i]->titulo->StartsWith(fase)) {
+				i--;
+			}
+
+			if (i >= 0) {
+				fase = cuadros[i]->titulo->Split(':')[0];
+
+				while (i > 0 && cuadros[i - 1]->titulo->StartsWith(fase)) {
+					i--;
+				}
+
+				mostrarPaso(i + 1);
+			}
 		}
 	}
 	private: System::Void btnFinal_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (cuadros->Count > 0) {
-			mostrarPaso(cuadros->Count);
+		if (pasoActual > 0 && pasoActual < cuadros->Count) {
+			String^ fase = cuadros[pasoActual - 1]->titulo->Split(':')[0];
+
+			for (int i = pasoActual; i < cuadros->Count; i++) {
+				if (!cuadros[i]->titulo->StartsWith(fase)) {
+					mostrarPaso(i + 1);
+					return;
+				}
+			}
 		}
 	}
 	private: System::Void pictureGrafo_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
