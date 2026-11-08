@@ -598,13 +598,13 @@ namespace GrafoConexo {
 			   return false;
 		   }
 
-		   array<int>^ identidad(int n) {
+		   array<int>^ crearOrdenInicial(int n) {
 			   array<int>^ r = gcnew array<int>(n);
 			   for (int i = 0; i < n; i++) { r[i] = i; }
 			   return r;
 		   }
 
-		   array<int, 2>^ aManaged(const std::vector<std::vector<int>>& v) {
+		   array<int, 2>^ convertirMatriz(const std::vector<std::vector<int>>& v) {
 			   int n = (int)v.size();
 			   array<int, 2>^ r = gcnew array<int, 2>(n, n);
 			   for (int i = 0; i < n; i++) {
@@ -615,7 +615,7 @@ namespace GrafoConexo {
 			   return r;
 		   }
 
-		   array<int>^ aManagedVec(const std::vector<int>& v) {
+		   array<int>^ convertirVector(const std::vector<int>& v) {
 			   array<int>^ r = gcnew array<int>((int)v.size());
 			   for (int i = 0; i < (int)v.size(); i++) { r[i] = v[i]; }
 			   return r;
@@ -639,7 +639,7 @@ namespace GrafoConexo {
 			   cuadroActual = nullptr;
 
 			   int n = cantidadVertices;
-			   array<int>^ id = identidad(n);
+			   array<int>^ id = crearOrdenInicial(n);
 			   Cuadro^ c;
 
 			   // ================= PASO 1: matriz de adyacencia =================
@@ -647,7 +647,7 @@ namespace GrafoConexo {
 			   c = nuevoCuadro(
 				   L"Paso 1: Matriz de adyacencia",
 				   L"Construimos la matriz de adyacencia del grafo y le agregamos el valor 1 en la diagonal principal.",
-				   aManaged(ady), id, id);
+				   convertirMatriz(ady), id, id);
 			   cuadros->Add(c);
 
 			   // ================= PASO 2: matriz de caminos (paso a paso) =================
@@ -673,7 +673,7 @@ namespace GrafoConexo {
 						   explicacion = explicacion + L"No aparecio ningun 1 nuevo.";
 					   }
 					   else {
-						   explicacion = explicacion + L"Nuevos 1 (en rojo) en las columnas: " + listaNombres(aManagedVec(p.nuevos)) + L".";
+						   explicacion = explicacion + L"Nuevos 1 (en rojo) en las columnas: " + listaNombres(convertirVector(p.nuevos)) + L".";
 					   }
 					   explicacion = explicacion + L"\r\nSe vuelve a revisar la fila " + nombre(p.fila) +
 						   L" desde el inicio por si hay algun 1 nuevo sin visitar.";
@@ -685,7 +685,7 @@ namespace GrafoConexo {
 					   }
 				   }
 
-				   c = nuevoCuadro(titulo2, explicacion, aManaged(p.matriz), id, id);
+				   c = nuevoCuadro(titulo2, explicacion, convertirMatriz(p.matriz), id, id);
 				   if (p.tipo == 1 || p.tipo == 2) {
 					   c->filaActiva = p.fila;
 					   c->filaCopia = p.columna;
@@ -695,17 +695,17 @@ namespace GrafoConexo {
 					   c->filaActiva = p.fila;
 				   }
 				   if (p.tipo == 2) {
-					   c->nuevos = aManagedVec(p.nuevos);
+					   c->nuevos = convertirVector(p.nuevos);
 				   }
 				   cuadros->Add(c);
 			   }
 
 			   std::vector<std::vector<int>> mcam = pasos[pasos.size() - 1].matriz;
-			   array<int, 2>^ mcamArr = aManaged(mcam);
+			   array<int, 2>^ mcamArr = convertirMatriz(mcam);
 
 			   // ================= PASO 3: ordenar filas =================
 			   std::vector<int> ordenVec = grafo->calcularOrdenFilas(mcam);
-			   array<int>^ orden = aManagedVec(ordenVec);
+			   array<int>^ orden = convertirVector(ordenVec);
 
 			   c = nuevoCuadro(
 				   L"Paso 3: Ordenar las filas",
@@ -733,7 +733,7 @@ namespace GrafoConexo {
 					   ordenFinalVec.push_back(compVec[i][k]);
 				   }
 			   }
-			   orden = aManagedVec(ordenFinalVec);
+			   orden = convertirVector(ordenFinalVec);
 
 			   c = nuevoCuadro(
 				   L"Paso 4: Ordenar las columnas",
@@ -773,7 +773,7 @@ namespace GrafoConexo {
 				   resultado->Append(L"V");
 				   resultado->Append(i + 1);
 				   resultado->Append(L" = { ");
-				   resultado->Append(listaNombres(aManagedVec(compVec[i])));
+				   resultado->Append(listaNombres(convertirVector(compVec[i])));
 				   resultado->AppendLine(L" }");
 			   }
 			   resultado->AppendLine();
