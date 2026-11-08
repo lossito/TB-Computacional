@@ -1,4 +1,3 @@
-//Grafo.h:
 #pragma once
 #include <vector>
 
@@ -99,13 +98,11 @@ public:
         pasos.push_back(inicio);
 
         for (int i = 0; i < n; i++) {
-            // visitados[k] = 1 si el 1 de la columna k de la fila i ya fue usado
             std::vector<int> visitados(n, 0);
             visitados[i] = 1; // la diagonal se ignora
 
             while (true) {
-                // se vuelve a recorrer la fila desde el inicio: puede haber 1 recien agregados
-                int j = -1;
+                int j = -1; // se vuelve a recorrer la fila desde el inicio: puede haber 1 recien agregados
                 for (int k = 0; k < n; k++) {
                     if (m[i][k] == 1 && visitados[k] == 0) { j = k; break; }
                 }
@@ -151,12 +148,19 @@ public:
             }
         }
 
-        // ordenamiento por insercion (estable)
         for (int a = 1; a < n; a++) {
-            int actual = orden[a];
-            int b = a - 1;
-            while (b >= 0 && (cantidad[orden[b]] < cantidad[actual] || (cantidad[orden[b]] == cantidad[actual] && primero[orden[b]] > primero[actual]) ||
-                    (cantidad[orden[b]] == cantidad[actual] && primero[orden[b]] == primero[actual] && m[orden[b]] < m[actual]))) {
+            int actual = orden[a]; int b = a - 1;
+            while (b >= 0 &&
+                (
+                    cantidad[orden[b]] < cantidad[actual] ||
+
+                    (cantidad[orden[b]] == cantidad[actual] &&
+                        primero[orden[b]] > primero[actual]) ||
+
+                    (cantidad[orden[b]] == cantidad[actual] &&
+                        primero[orden[b]] == primero[actual] &&
+                        m[orden[b]] < m[actual]))
+                    ) {
                 orden[b + 1] = orden[b];
                 b--;
             }

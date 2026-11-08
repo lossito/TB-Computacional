@@ -1,4 +1,3 @@
-//MyForm1.h:
 #pragma once
 #include "dwmapi.h"
 #include "Grafo.h"
