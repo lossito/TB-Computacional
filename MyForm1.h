@@ -73,6 +73,47 @@ namespace GrafoConexo {
 			txtMatriz->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
 
 			prepararEntradaManual();
+
+			int anchoBloque = pruebTexto1->Width;
+			int altoBloque = pruebTexto1->Bottom - numericUpDown1->Top;
+			int moverX = (panelConfig->ClientSize.Width - anchoBloque) / 2 - pruebTexto1->Left;
+			int moverY = (btnAtras->Top - altoBloque) / 2 - numericUpDown1->Top;
+
+			for (int i = 0; i < panelConfig->Controls->Count; i++) {
+				Control^ control = panelConfig->Controls[i];
+				control->Location = System::Drawing::Point(control->Left + moverX, control->Top + moverY);
+				control->Anchor = AnchorStyles::None;
+			}
+
+			this->MinimumSize = this->Size;
+			pictureGrafo->Anchor = (AnchorStyles)(AnchorStyles::Top | AnchorStyles::Bottom | AnchorStyles::Left | AnchorStyles::Right);
+			pictureMatriz->Anchor = (AnchorStyles)(AnchorStyles::Bottom | AnchorStyles::Left);
+			txtMatriz->Anchor = (AnchorStyles)(AnchorStyles::Bottom | AnchorStyles::Left | AnchorStyles::Right);
+			btnAtras->Anchor = (AnchorStyles)(AnchorStyles::Bottom | AnchorStyles::Left);
+			btnSiguiente->Anchor = (AnchorStyles)(AnchorStyles::Bottom | AnchorStyles::Right);
+			pictureGrafo->SizeChanged += gcnew System::EventHandler(this, &MyForm1::pictureGrafo_SizeChanged);
+			btnInicio = gcnew System::Windows::Forms::Button();
+			btnInicio->Text = L"Ir al inicio";
+			btnInicio->Size = btnAtras->Size;
+			btnInicio->Location = System::Drawing::Point(btnAtras->Right + 8, btnAtras->Top);
+			btnInicio->Anchor = btnAtras->Anchor;
+			btnInicio->UseVisualStyleBackColor = true;
+			btnInicio->Enabled = false;
+			btnInicio->Click += gcnew System::EventHandler(this, &MyForm1::btnInicio_Click);
+			this->Controls->Add(btnInicio);
+			btnInicio->BringToFront();
+
+			btnFinal = gcnew System::Windows::Forms::Button();
+			btnFinal->Text = L"Ir al final";
+			btnFinal->Size = btnSiguiente->Size;
+			btnFinal->Location = System::Drawing::Point(btnSiguiente->Left - btnFinal->Width - 8, btnSiguiente->Top);
+			btnFinal->Anchor = btnSiguiente->Anchor;
+			btnFinal->UseVisualStyleBackColor = true;
+			btnFinal->Enabled = false;
+			btnFinal->Click += gcnew System::EventHandler(this, &MyForm1::btnFinal_Click);
+			this->Controls->Add(btnFinal);
+			btnFinal->BringToFront();
+			mostrarPaso(0);
 		}
 
 	protected:
@@ -106,8 +147,10 @@ namespace GrafoConexo {
 	private: System::Windows::Forms::Panel^ panelConfig;
 	private: System::Windows::Forms::Panel^ panelGrafo;
 	private: System::Windows::Forms::TextBox^ txtMatriz;
-	private: System::Windows::Forms::Button^ btnsiguiente;
+	private: System::Windows::Forms::Button^ btnSiguiente;
 	private: System::Windows::Forms::Button^ btnAtras;
+	private: System::Windows::Forms::Button^ btnInicio;
+	private: System::Windows::Forms::Button^ btnFinal;
 	private: System::Windows::Forms::PictureBox^ pictureGrafo;
 
 #pragma region Windows Form Designer generated code
@@ -126,7 +169,7 @@ namespace GrafoConexo {
 			   this->panelGrafo = (gcnew System::Windows::Forms::Panel());
 			   this->txtMatriz = (gcnew System::Windows::Forms::TextBox());
 			   this->pictureGrafo = (gcnew System::Windows::Forms::PictureBox());
-			   this->btnsiguiente = (gcnew System::Windows::Forms::Button());
+			   this->btnSiguiente = (gcnew System::Windows::Forms::Button());
 			   this->btnAtras = (gcnew System::Windows::Forms::Button());
 			   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->numericUpDown1))->BeginInit();
 			   this->panelConfig->SuspendLayout();
@@ -234,16 +277,16 @@ namespace GrafoConexo {
 			   this->pictureGrafo->TabStop = false;
 			   this->pictureGrafo->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &MyForm1::pictureGrafo_Paint);
 			   // 
-			   // btnsiguiente
+			   // btnSiguiente
 			   // 
-			   this->btnsiguiente->Enabled = false;
-			   this->btnsiguiente->Location = System::Drawing::Point(540, 730);
-			   this->btnsiguiente->Name = L"btnsiguiente";
-			   this->btnsiguiente->Size = System::Drawing::Size(105, 33);
-			   this->btnsiguiente->TabIndex = 8;
-			   this->btnsiguiente->Text = L"Siguiente";
-			   this->btnsiguiente->UseVisualStyleBackColor = true;
-			   this->btnsiguiente->Click += gcnew System::EventHandler(this, &MyForm1::btnsiguiente_Click);
+			   this->btnSiguiente->Enabled = false;
+			   this->btnSiguiente->Location = System::Drawing::Point(540, 730);
+			   this->btnSiguiente->Name = L"btnSiguiente";
+			   this->btnSiguiente->Size = System::Drawing::Size(105, 33);
+			   this->btnSiguiente->TabIndex = 8;
+			   this->btnSiguiente->Text = L"Siguiente";
+			   this->btnSiguiente->UseVisualStyleBackColor = true;
+			   this->btnSiguiente->Click += gcnew System::EventHandler(this, &MyForm1::btnSiguiente_Click);
 			   // 
 			   // btnAtras
 			   // 
@@ -262,7 +305,7 @@ namespace GrafoConexo {
 			   this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(43)), static_cast<System::Int32>(static_cast<System::Byte>(45)),
 				   static_cast<System::Int32>(static_cast<System::Byte>(49)));
 			   this->ClientSize = System::Drawing::Size(674, 775);
-			   this->Controls->Add(this->btnsiguiente);
+			   this->Controls->Add(this->btnSiguiente);
 			   this->Controls->Add(this->btnAtras);
 			   this->Controls->Add(this->panelGrafo);
 			   this->Controls->Add(this->panelConfig);
@@ -282,6 +325,19 @@ namespace GrafoConexo {
 
 		   }
 #pragma endregion
+	private: System::Void btnInicio_Click(System::Object^ sender, System::EventArgs^ e) {
+		if (cuadros->Count > 0) {
+			mostrarPaso(1);
+		}
+	}
+	private: System::Void btnFinal_Click(System::Object^ sender, System::EventArgs^ e) {
+		if (cuadros->Count > 0) {
+			mostrarPaso(cuadros->Count);
+		}
+	}
+	private: System::Void pictureGrafo_SizeChanged(System::Object^ sender, System::EventArgs^ e) {
+		pictureGrafo->Invalidate();
+	}
 	private: System::Void MyForm1_Load(System::Object^ sender, System::EventArgs^ e) {
 		IntPtr handle = this->Handle;
 		HWND hwnd = (HWND)handle.ToPointer();
@@ -294,25 +350,21 @@ namespace GrafoConexo {
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		cantidadVertices = (int)numericUpDown1->Value;
 		grafo->reiniciar();
-
 		for (char vertice = 'A'; vertice < 'A' + cantidadVertices; vertice++) {
 			grafo->agregarVertice(vertice);
 		}
-
 		if (radioButton1->Checked) {
 			generarAristasAleatorias();
 		}
 		else {
 			if (!cargarAristasManuales()) {
 				grafoCreado = false;
-				btnsiguiente->Enabled = false;
+				btnSiguiente->Enabled = false;
 				return;
 			}
 		}
-
 		actualizarLista();
 		construirCuadros();
-
 		grafoCreado = true;
 		mostrarPaso(0);
 	}
@@ -507,7 +559,7 @@ namespace GrafoConexo {
 		}
 	}
 
-	private: System::Void btnsiguiente_Click(System::Object^ sender, System::EventArgs^ e) {
+	private: System::Void btnSiguiente_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (pasoActual < cuadros->Count) {
 			mostrarPaso(pasoActual + 1);
 		}
@@ -525,9 +577,6 @@ namespace GrafoConexo {
 			   }
 		   }
 
-		   // ---------------------------------------------------------------
-		   // Utilidades
-		   // ---------------------------------------------------------------
 		   String^ nombre(int indice) {
 			   return textoVertice((char)('A' + indice));
 		   }
@@ -742,6 +791,10 @@ namespace GrafoConexo {
 			   panelConfig->Visible = (paso == 0);
 			   panelGrafo->Visible = (paso > 0);
 
+			   btnAtras->Visible = (paso > 0); btnAtras->BringToFront();
+			   btnInicio->Visible = (paso > 0);
+			   btnFinal->Visible = (paso > 0);
+
 			   if (paso > 0 && paso <= cuadros->Count) {
 				   cuadroActual = cuadros[paso - 1];
 				   txtMatriz->Text = cuadroActual->titulo + L"\r\n\r\n" + cuadroActual->explicacion +
@@ -756,7 +809,10 @@ namespace GrafoConexo {
 			   }
 
 			   btnAtras->Enabled = (paso > 0);
-			   btnsiguiente->Enabled = (paso < cuadros->Count) && (paso > 0 || grafoCreado);
+			   btnSiguiente->Enabled = (paso < cuadros->Count) && (paso > 0 || grafoCreado);
+
+			   btnInicio->Enabled = (paso > 1);
+			   btnFinal->Enabled = (paso > 0) && (paso < cuadros->Count);
 		   }
 
 		   void actualizarLista() {
@@ -845,6 +901,10 @@ namespace GrafoConexo {
 				   }
 
 				   String^ contenido = linea->Substring(prefijo->Length)->Trim();
+
+				   while (contenido->EndsWith(L",")) {
+					   contenido = contenido->Substring(0, contenido->Length - 1)->Trim();
+				   }
 
 				   if (contenido->Length == 0 || contenido->Equals(L"SIN ARISTAS")) {
 					   continue;
